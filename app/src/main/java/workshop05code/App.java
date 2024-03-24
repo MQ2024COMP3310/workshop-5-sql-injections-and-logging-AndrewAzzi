@@ -60,11 +60,9 @@ public class App {
                 wordleDatabaseConnection.addValidWord(i, line);
                 i++;
             }
-
         } catch (IOException e) {
-            System.out.println("Not able to load . Sorry!");
-            System.out.println(e.getMessage());
-            return;
+            logger.log(Level.WARNING, "There is a problem loading words from file.", e);
+            System.out.println("An error occurred while loading data. Please try again.");
         }
 
         // let's get them to enter a word
@@ -73,20 +71,27 @@ public class App {
             System.out.print("Enter a 4 letter word for a guess or q to quit: ");
             String guess = scanner.nextLine();
 
+            // Regular expression for validation
+            String validPattern = "^[a-z]{4}$";
+
             while (!guess.equals("q")) {
-                System.out.println("You've guessed '" + guess+"'.");
-
-                if (wordleDatabaseConnection.isValidWord(guess)) { 
-                    System.out.println("Success! It is in the the list.\n");
-                }else{
-                    System.out.println("Sorry. This word is NOT in the the list.\n");
+                if (guess.matches(validPattern)) {
+                    System.out.println("You've guessed '" + guess + "'.");
+                    if (wordleDatabaseConnection.isValidWord(guess)) {
+                        System.out.println("Success! It is in the list.\n");
+                    } else {
+                        System.out.println("Sorry. This word is NOT in the list.\n");
+                    }
+                } else {
+                    logger.log(Level.INFO, "Invalid guess made: " + guess);
+                    System.out.println("Not an acceptable input! Please enter a 4-letter word.");
                 }
-
                 System.out.print("Enter a 4 letter word for a guess or q to quit: " );
                 guess = scanner.nextLine();
             }
         } catch (NoSuchElementException | IllegalStateException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "An error has occurred during user interaction", e);
+            System.out.println("An error has occurred. Please try again.");
         }
 
     }

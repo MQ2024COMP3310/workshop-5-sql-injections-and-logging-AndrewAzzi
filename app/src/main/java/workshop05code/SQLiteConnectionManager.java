@@ -51,6 +51,7 @@ public class SQLiteConnectionManager {
      */
     public SQLiteConnectionManager(String filename) {
         databaseURL = "jdbc:sqlite:sqlite/" + filename;
+        logger.log(Level.INFO, "Database connection set up: " + databaseURL);
 
     }
 
@@ -126,6 +127,12 @@ public class SQLiteConnectionManager {
      * @param word the word to store
      */
     public void addValidWord(int id, String word) {
+        String validPattern = "^[a-z]{4}$"; // Validation pattern RegExp
+
+        if (!word.matches(validPattern)) {
+            logger.log(Level.SEVERE, "Ignored invalid input from file: " + word);
+            return; // Stops processing the inputted word
+        }
 
         String sql = "INSERT INTO validWords(id,word) VALUES(?,?)";
 
@@ -134,8 +141,9 @@ public class SQLiteConnectionManager {
             pstmt.setInt(1, id);
             pstmt.setString(2, word);
             pstmt.executeUpdate();
+            logger.log(Level.INFO, "Valid word added: " + word);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.WARNING, "Failed to add this word to database", e);
         }
 
     }
